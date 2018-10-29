@@ -1,4 +1,5 @@
 import Foundation
+
 public struct Feed {
     public let title: String
     public let link: URL?
@@ -10,17 +11,15 @@ public struct Feed {
 
     public let imageURL: URL?
 
-    private var internalArticles: [Article] = []
+    public private(set) var articles: [Article]
 
-    public var articles: [Article] { return internalArticles }
-
-    public init(title: String, link: URL?, description : String, articles: [Article], language: Locale? = nil,
-         lastUpdated : Date? = nil, publicationDate : Date? = nil, imageURL: URL? = nil, copyright: String? = nil) {
+    public init(title: String, link: URL?, description: String, articles: [Article], language: Locale? = nil,
+                lastUpdated: Date? = nil, publicationDate: Date? = nil, imageURL: URL? = nil, copyright: String? = nil) {
         self.title = title
         self.link = link
         self.description = description
 
-        self.internalArticles = articles
+        self.articles = articles
 
         self.language = language
         self.lastUpdated = lastUpdated
@@ -29,7 +28,7 @@ public struct Feed {
         self.imageURL = imageURL
     }
 
-    mutating func addArticle(_ article : Article) {
-        self.internalArticles.append(article)
+    mutating func addArticle(_ article: Article) {
+        articles.append(article)
     }
 }

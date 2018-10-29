@@ -1,7 +1,7 @@
 import Quick
 import Nimble
 import Foundation
-import Muon
+@testable import Muon
 
 class IntegrationSpec: QuickSpec {
     
@@ -47,7 +47,7 @@ class IntegrationSpec: QuickSpec {
                 expect(feed?.articles.count).to(equal(1))
                 if let article = feed?.articles.first {
                     expect(article.title).to(equal("Welcome to ResearchKit!"))
-                    expect(article.link).to(equal(URL(string: "http://researchkit.org/blog.html#article-1")))
+                    expect(article.link).to(equal("http://researchkit.org/blog.html#article-1"))
                     expect(article.guid).to(equal("http://researchkit.org/blog.html#article-1"))
                     expect(article.description).to(equal(" On March 9, Apple introduced the world to  ResearchKit , a new software framework designed for health and medical research that helps doctors and scientists gather data more frequently and more accurately from participants using iPhone apps. Today, we’re excited to make ResearchKit available as open source so that researchers can more easily develop their own research apps and leverage the visual consent flows, real time dynamic active tasks and surveys that are included in the framework. Now that it’s available as open source, researchers all over the world will be able to contribute new modules to the framework, like activities around cognition or mood, and share them with the global research community to further advance what we know about disease.  This new blog will provide researchers and engineers all over the world with a simple forum for sharing tips on how to take advantage of the ResearchKit framework. It’s also a great place to check-in for news and updates from studies utilizing ResearchKit and hear from researchers directly about new studies and modules in development.  You can get started with ResearchKit by visiting  GitHub , now available to all developers for free under the ResearchKit BSD license. Be sure to check out the  Overview  tab for great links to  documentation  and  sample code  to help you start building your research app today. You can even share your favorite modules with the global research community by creating an issue or claiming an existing one from our issue list and send us a pull request.  We can’t wait to see what we discover together!  - The ResearchKit Team "))
                     // these two strings are equal, according to diff. Yet the equal matcher fails.
@@ -76,7 +76,7 @@ class IntegrationSpec: QuickSpec {
                 expect(feed?.articles.count).to(equal(20))
                 if let article = feed?.articles.first {
                     expect(article.title).to(equal("Photon Kit contest winners"))
-                    expect(article.link).to(equal(URL(string: "https://www.sparkfun.com/news/1910")))
+                    expect(article.link).to(equal("https://www.sparkfun.com/news/1910"))
                     expect(article.guid).to(equal("urn:uuid:b591fe6f-ed76-e46a-ffc0-66cac3fac399"))
                     expect(article.description).to(equal(""))
                     let sparkfun1 = read(file: "sparkfun1.html")
@@ -108,7 +108,7 @@ class IntegrationSpec: QuickSpec {
                 expect(feed?.articles.count).to(equal(4))
                 if let article = feed?.articles.first {
                     expect(article.title).to(equal("Magnus"))
-                    expect(article.link).to(equal(URL(string: "http://xkcd.com/1628/")))
+                    expect(article.link).to(equal("http://xkcd.com/1628/"))
                     expect(article.guid).to(equal("http://xkcd.com/1628/"))
                     expect(article.description).to(equal("<img src=\"http://imgs.xkcd.com/comics/magnus.png\" title=\"In the latest round, 9-year-old Muhammad Ali beat 10-year-old JFK at air hockey, while Secretariat lost the hot-dog-eating crown to 12-year-old Ken Jennings. Meanwhile, in a huge upset, 11-year-old Martha Stewart knocked out the adult Ronda Rousey.\" alt=\"In the latest round, 9-year-old Muhammad Ali beat 10-year-old JFK at air hockey, while Secretariat lost the hot-dog-eating crown to 12-year-old Ken Jennings. Meanwhile, in a huge upset, 11-year-old Martha Stewart knocked out the adult Ronda Rousey.\" />"))
                     expect(article.content).to(equal(""))
@@ -139,7 +139,7 @@ class IntegrationSpec: QuickSpec {
                 expect(feed?.articles.count).to(equal(4))
                 if let article = feed?.articles.first {
                     expect(article.title).to(equal("Magnus"))
-                    expect(article.link).to(equal(URL(string: "http://xkcd.com/1628/")))
+                    expect(article.link).to(equal("http://xkcd.com/1628/"))
                     expect(article.guid).to(equal("http://xkcd.com/1628/"))
                     expect(article.description).to(equal("<img src=\"http://imgs.xkcd.com/comics/magnus.png\" title=\"In the latest round, 9-year-old Muhammad Ali beat 10-year-old JFK at air hockey, while Secretariat lost the hot-dog-eating crown to 12-year-old Ken Jennings. Meanwhile, in a huge upset, 11-year-old Martha Stewart knocked out the adult Ronda Rousey.\" alt=\"In the latest round, 9-year-old Muhammad Ali beat 10-year-old JFK at air hockey, while Secretariat lost the hot-dog-eating crown to 12-year-old Ken Jennings. Meanwhile, in a huge upset, 11-year-old Martha Stewart knocked out the adult Ronda Rousey.\" />"))
                     expect(article.content).to(equal(""))
@@ -172,7 +172,7 @@ class IntegrationSpec: QuickSpec {
                 expect(feed?.articles.count).to(equal(1))
                 if let article = feed?.articles.first {
                     expect(article.title).to(equal("Giving the world a pluggable Gnutella"))
-                    expect(article.link).to(equal(URL(string: "http://writetheweb.com/read.php?item=24")))
+                    expect(article.link).to(equal("http://writetheweb.com/read.php?item=24"))
                     expect(article.description).to(equal("WorldOS is a framework on which to build programs that work like Freenet or Gnutella -allowing distributed applications using peer-to-peer routing."))
                 }
             }
@@ -230,12 +230,12 @@ class IntegrationSpec: QuickSpec {
                 expect(feed?.articles.count).to(equal(2))
                 if let article = feed?.articles.first {
                     expect(article.title).to(equal("Processing Inclusions with XSLT"))
-                    expect(article.link).to(equal(URL(string: "http://xml.com/pub/2000/08/09/xslt/xslt.html")))
+                    expect(article.link).to(equal("http://xml.com/pub/2000/08/09/xslt/xslt.html"))
                     expect(article.description).to(equal("Processing document inclusions with general XML tools can be problematic. This article proposes a way of preserving inclusion information through SAX-based processing."))
                 }
                 if let article = feed?.articles.last {
                     expect(article.title).to(equal("Putting RDF to Work"))
-                    expect(article.link).to(equal(URL(string: "http://xml.com/pub/2000/08/09/rdfdb/index.html")))
+                    expect(article.link).to(equal("http://xml.com/pub/2000/08/09/rdfdb/index.html"))
                     expect(article.description).to(equal("Tool and API support for the Resource Description Framework is slowly coming of age. Edd Dumbill takes a look at RDFDB, one of the most exciting new RDF toolkits."))
                 }
             }
@@ -262,7 +262,7 @@ class IntegrationSpec: QuickSpec {
                 expect(feed?.articles.count).to(equal(2))
                 if let article = feed?.articles.first {
                     expect(article.title).to(equal("Star City"))
-                    expect(article.link).to(equal(URL(string: "http://liftoff.msfc.nasa.gov/news/2003/news-starcity.asp")))
+                    expect(article.link).to(equal("http://liftoff.msfc.nasa.gov/news/2003/news-starcity.asp"))
                     expect(article.description).to(equal("How do Americans get ready to work with Russians aboard the International Space Station? They take a crash course in culture, language and protocol at Russia's <a href=\"http://howe.iki.rssi.ru/GCTC/gctc_e.htm\">Star City</a>."))
                     let date = "Tue, 03 Jun 2003 09:39:21 GMT".RFC822Date()
                     expect(article.published).to(equal(date))
@@ -301,7 +301,7 @@ class IntegrationSpec: QuickSpec {
                 expect(feed?.articles.count).to(equal(2))
                 if let article = feed?.articles.first {
                     expect(article.title).to(equal("Atom draft-07 snapshot"))
-                    expect(article.link).to(equal(URL(string: "http://example.org/2005/04/02/atom")))
+                    expect(article.link).to(equal("http://example.org/2005/04/02/atom"))
                     expect(article.guid).to(equal("tag:example.org,2003:3.2397"))
                     let updated = "2005-07-31T12:29:29Z".RFC3339Date()
                     expect(article.updated).to(equal(updated))

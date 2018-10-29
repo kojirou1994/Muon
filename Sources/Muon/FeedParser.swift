@@ -1,37 +1,34 @@
 import Foundation
+import Kwift
 
 public enum FeedParserError: Error {
     case noFeed
     case noData
     case noFeedParsed
+    case xmlparserError(NSError)
 
     var localizedDescription: String {
-        switch (self) {
+        switch self {
         case .noFeed:
             return "No Feed Found"
         case .noData:
             return "Must be configured with data"
         case .noFeedParsed:
             return "Could not parse a feed"
+        case .xmlparserError(let error):
+            return "Xml parser error: \(error)"
         }
     }
 }
 
 public final class FeedParser: Operation, XMLParserDelegate {
-    public var completion : (Feed) -> Void = {_ in }
-    public var onFailure : (Error) -> Void = {_ in }
+    private var completion: (ResultWithError<Feed, FeedParserError>) -> Void = { _ in }
 
-    private var content : Data? = nil
-    private var contentString : String? = nil
+    private var content: Data?
+    private var contentString: String?
 
-    public func success(_ onSuccess: @escaping (Feed) -> Void) -> FeedParser {
-        completion = onSuccess
-        return self
-    }
-
-    public func failure(_ failed: @escaping (Error) -> Void) -> FeedParser {
-        onFailure = failed
-        return self
+    public func completion(_ completion: @escaping (ResultWithError<Feed, FeedParserError>) -> Void) {
+        self.completion = completion
     }
 
     public init(string: String) {
@@ -49,7 +46,7 @@ public final class FeedParser: Operation, XMLParserDelegate {
         content = string.data(using: String.Encoding.utf8, allowLossyConversion: false)
     }
 
-    // MARK - NSOperation
+    // MARK: - NSOperation
 
     public override func main() {
         parse()
@@ -59,7 +56,7 @@ public final class FeedParser: Operation, XMLParserDelegate {
         stopParsing()
     }
 
-    // MARK - Feed Parsing
+    // MARK: - Feed Parsing
 
     private func stopParsing() {
         parser?.abortParsing()
@@ -69,7 +66,7 @@ public final class FeedParser: Operation, XMLParserDelegate {
     private func parse() {
         if let content = self.content {
             if content.count == 0 {
-                self.onFailure(FeedParserError.noFeed)
+                completion(.failure(.noFeed))
                 return
             }
             let parser = XMLParser(data: content)
@@ -80,78 +77,78 @@ public final class FeedParser: Operation, XMLParserDelegate {
             articles = []
             _ = parser.parse()
         } else {
-            self.onFailure(FeedParserError.noData)
+            completion(.failure(.noData))
         }
     }
 
-    public func parserDidEndDocument(_ parser: XMLParser) {
-        self.parser = nil
+    public func parserDidEndDocument(_: XMLParser) {
+        parser = nil
         if let feed = self.feed {
-            self.completion(feed)
+            completion(.success(feed))
         } else {
-            self.onFailure(FeedParserError.noFeedParsed)
+            completion(.failure(.noFeedParsed))
         }
     }
 
-    public func parser(_ parser: XMLParser, parseErrorOccurred parseError: Error) {
-        self.parser = nil
-        self.onFailure(parseError)
+    public func parser(_: XMLParser, parseErrorOccurred parseError: Error) {
+        parser = nil
+        completion(.failure(.xmlparserError(parseError as NSError)))
     }
 
-    private var feed : Feed? = nil
-    private var parser : XMLParser? = nil
+    private var feed: Feed?
+    private var parser: XMLParser?
 
-    var currentPath : [String] = []
+    var currentPath: [String] = []
     var parseStructureAsContent = false
-    var lastAttributes : [String: String] = [:]
+    var lastAttributes: [String: String] = [:]
 
     private var feedHelper = FeedHelper()
 
     private struct FeedHelper {
-        var title : String = ""
-        var link : String = ""
-        var description : String = ""
-        var language : String = ""
-        var lastUpdated : String = ""
-        var publicationDate : String = ""
-        var copyright : String = ""
+        var title: String = ""
+        var link: String = ""
+        var description: String = ""
+        var language: String = ""
+        var lastUpdated: String = ""
+        var publicationDate: String = ""
+        var copyright: String = ""
 
-        var imageURL : String = ""
+        var imageURL: String = ""
     }
 
     private var articleHelper = ArticleHelper()
-    private var articles : [Article] = []
+    private var articles: [Article] = []
 
-    private var enclosures : [Enclosure] = []
+    private var enclosures: [Enclosure] = []
 
     private struct ArticleHelper {
-        var title : String = ""
-        var link : String = ""
-        var guid : String = ""
-        var description : String = ""
-        var published : String = ""
-        var updated : String = ""
-        var content : String = ""
+        var title: String = ""
+        var link: String = ""
+        var guid: String = ""
+        var description: String = ""
+        var published: String = ""
+        var updated: String = ""
+        var content: String = ""
     }
 
     private var authorHelper = AuthorHelper()
-    private var authors : [Author] = []
-    private var feedAuthors : [Author] = []
+    private var authors: [Author] = []
+    private var feedAuthors: [Author] = []
 
     private struct AuthorHelper {
-        var name : String = ""
-        var email : String = ""
-        var uri : String = ""
+        var name: String = ""
+        var email: String = ""
+        var uri: String = ""
     }
 
-    var atomArticleContent : [String] = []
-    var atomXHTMLPath : [String]? = nil
-    var isAtomXHTML : Bool {
+    var atomArticleContent: [String] = []
+    var atomXHTMLPath: [String]?
+    var isAtomXHTML: Bool {
         if let path = atomXHTMLPath {
             if currentPath.count < path.count {
                 return false
             }
-            for (i,x) in path.enumerated() {
+            for (i, x) in path.enumerated() {
                 if currentPath[i] != x {
                     return false
                 }
@@ -161,7 +158,7 @@ public final class FeedParser: Operation, XMLParserDelegate {
         return false
     }
 
-    public func parser(_ parser: XMLParser, didStartElement elementName: String, namespaceURI: String?, qualifiedName qName: String?, attributes attributeDict: [String: String]) {
+    public func parser(_: XMLParser, didStartElement elementName: String, namespaceURI _: String?, qualifiedName qName: String?, attributes attributeDict: [String: String]) {
         let name = (qName?.range(of: "content") != nil ? "content" : elementName).lowercased()
         currentPath.append(name)
 
@@ -191,9 +188,9 @@ public final class FeedParser: Operation, XMLParserDelegate {
             atomArticleContent = []
         } else if currentPath == ["rss", "channel", "item", "enclosure"] { // enclosure for RSS 2.0-compatible feeds
             parseRSSEnclosure(attributeDict)
-        } else if let imageURL = attributeDict["rdf:resource"] , currentPath == ["rdf", "channel", "image"] { // RSS 1.0 image
+        } else if let imageURL = attributeDict["rdf:resource"], currentPath == ["rdf", "channel", "image"] { // RSS 1.0 image
             parseChannel("image", str: imageURL)
-        } else if let currentElement = currentPath.last , currentPath.first == "feed" && attributeDict.count != 0 { // Atom makes extensive use of attributes
+        } else if let currentElement = currentPath.last, currentPath.first == "feed" && attributeDict.count != 0 { // Atom makes extensive use of attributes
             parseAtomItem(currentElement, attributeDict: attributeDict)
         } else if name == "author" {
             authorHelper = AuthorHelper()
@@ -202,7 +199,7 @@ public final class FeedParser: Operation, XMLParserDelegate {
 
     private func parseCharacters(_ string: String) {
         if let currentItem = currentPath.last {
-            if let lastEntry = atomArticleContent.last , isAtomXHTML {
+            if let lastEntry = atomArticleContent.last, isAtomXHTML {
                 if lastEntry.hasPrefix(parseAtomContentBeginTag(currentItem, attributes: lastAttributes)) {
                     atomArticleContent[atomArticleContent.count - 1] = lastEntry + ">"
                     atomArticleContent.append(string)
@@ -231,22 +228,22 @@ public final class FeedParser: Operation, XMLParserDelegate {
         }
     }
 
-    public func parser(_ parser: XMLParser, foundCharacters string: String) {
-        self.parseCharacters(string)
+    public func parser(_: XMLParser, foundCharacters string: String) {
+        parseCharacters(string)
     }
 
-    public func parser(_ parser: XMLParser, foundIgnorableWhitespace whitespaceString: String) {
-        self.parseCharacters(whitespaceString)
+    public func parser(_: XMLParser, foundIgnorableWhitespace whitespaceString: String) {
+        parseCharacters(whitespaceString)
     }
 
     private func stringOrNil(_ string: String) -> String? {
-        if (string == "") {
+        if string == "" {
             return nil
         }
         return string
     }
 
-    public func parser(_ parser: XMLParser, didEndElement elementName: String, namespaceURI: String?, qualifiedName qName: String?) {
+    public func parser(_: XMLParser, didEndElement elementName: String, namespaceURI _: String?, qualifiedName qName: String?) {
         let name = (qName?.range(of: "content") != nil ? "content" : elementName).lowercased()
         for (idx, item) in Array(currentPath.reversed()).enumerated() {
             if item == name.lowercased() {
@@ -271,7 +268,7 @@ public final class FeedParser: Operation, XMLParserDelegate {
             // parse and create a feed
             let link = URL(string: feedHelper.link)
             let language = stringOrNil(feedHelper.language)
-            let locale : Locale? = language != nil ? Locale(identifier: feedHelper.language) : nil
+            let locale: Locale? = language != nil ? Locale(identifier: feedHelper.language) : nil
             let lastUpdated = feedHelper.lastUpdated.RFC822Date() ?? feedHelper.lastUpdated.RFC3339Date()
             let pubDate = feedHelper.publicationDate.RFC822Date()
             let copyright = stringOrNil(feedHelper.copyright)
@@ -281,7 +278,7 @@ public final class FeedParser: Operation, XMLParserDelegate {
         } else if name == "item" || name == "entry" {
             // parse and create an article
             let title = stringOrNil(articleHelper.title)
-            let link = !articleHelper.link.hasOnlyWhitespace() ? URL(string: articleHelper.link) : nil
+            let link = !articleHelper.link.hasOnlyWhitespace() ? articleHelper.link : nil
             let guid = stringOrNil(articleHelper.guid)
             let description = stringOrNil(articleHelper.description)
             let content = stringOrNil(articleHelper.content)
@@ -290,7 +287,7 @@ public final class FeedParser: Operation, XMLParserDelegate {
 
             let authorsToUse = authors.count == 0 ? feedAuthors : authors
 
-            let article = Article(title: title, link: link as URL?, description: description, content: content, guid: guid, published: published, updated: updated, authors: authorsToUse, enclosures: enclosures)
+            let article = Article(title: title, link: link, description: description, content: content, guid: guid, published: published, updated: updated, authors: authorsToUse, enclosures: enclosures)
 
             if currentPath.first == "rdf" { // RSS 1.0
                 feed?.addArticle(article)
@@ -318,7 +315,7 @@ public final class FeedParser: Operation, XMLParserDelegate {
         if parseAuthor(currentElement, str: str) {
             return
         }
-        switch (currentElement) {
+        switch currentElement {
         case "title":
             feedHelper.title += str
         case "link":
@@ -341,7 +338,7 @@ public final class FeedParser: Operation, XMLParserDelegate {
         if parseAuthor(currentElement, str: str) {
             return
         }
-        switch (currentElement) {
+        switch currentElement {
         case "title":
             articleHelper.title += str
         case "link":
@@ -363,7 +360,7 @@ public final class FeedParser: Operation, XMLParserDelegate {
     private func parseAuthor(_ currentElement: String, str: String) -> Bool {
         if currentPath.contains("author") || currentPath.contains("contributor") {
             if currentPath.first == "feed" { // Atom
-                switch (currentElement) {
+                switch currentElement {
                 case "name":
                     authorHelper.name += str
                 case "email":
@@ -382,31 +379,31 @@ public final class FeedParser: Operation, XMLParserDelegate {
     }
 
     private func parseRSSEnclosure(_ attributeDict: [String: String]) {
-        if let url = URL(string: attributeDict["url"] ?? ""),
+        if case let url = attributeDict["url"] ?? "",
             let type = attributeDict["type"],
             let lenStr = attributeDict["length"], let length = Int(lenStr) {
-                let enclosure = Enclosure(url: url, length: length, type: type)
-                enclosures.append(enclosure)
+            let enclosure = Enclosure(url: url, length: length, type: type)
+            enclosures.append(enclosure)
         }
     }
 
     private func parseAtomItem(_ currentElement: String, attributeDict: [String: String]) {
         if currentPath.contains("entry") {
-            switch (currentElement) {
+            switch currentElement {
             case "link":
                 if let href = attributeDict["href"] {
                     if attributeDict["rel"] == "enclosure" {
                         if let type = attributeDict["type"], let lengthString = attributeDict["length"],
-                            let length = Int(lengthString), let href = attributeDict["href"], let url = URL(string: href) {
-                                let enclosure = Enclosure(url: url, length: length, type: type)
-                                enclosures.append(enclosure)
+                            let length = Int(lengthString), let href = attributeDict["href"] {
+                            let enclosure = Enclosure(url: href, length: length, type: type)
+                            enclosures.append(enclosure)
                         }
                     } else {
                         articleHelper.link = href
                     }
                 }
             default:
-                break;
+                break
             }
         } else {
             if let href = attributeDict["href"], currentElement == "link" {
