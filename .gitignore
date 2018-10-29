@@ -1,6 +1,5 @@
 Carthage
-Muon.xcodeproj/project.xcworkspace
-Muon.xcodeproj/xcuserdata
+*.xcodeproj
 .build
 
 *swp
