@@ -1,9 +1,9 @@
 import Foundation
 
-public struct Feed {
+public struct Feed: CustomStringConvertible {
     public let title: String
     public let link: URL?
-    public let description: String
+    public let feedDescription: String
     public let language: Locale?
     public let lastUpdated: Date?
     public let publicationDate: Date?
@@ -17,7 +17,7 @@ public struct Feed {
                 lastUpdated: Date? = nil, publicationDate: Date? = nil, imageURL: URL? = nil, copyright: String? = nil) {
         self.title = title
         self.link = link
-        self.description = description
+        self.feedDescription = description
 
         self.articles = articles
 
@@ -30,5 +30,19 @@ public struct Feed {
 
     mutating func addArticle(_ article: Article) {
         articles.append(article)
+    }
+    
+    public var description: String {
+        var articleStr = ""
+        for (i, v) in articles.enumerated() {
+            articleStr.append("\(i)\n\(v.description)\n")
+        }
+        return """
+        title: \(title)
+        link: \(link?.description ?? "No link")
+        description: \(feedDescription)
+        articles:
+        \(articleStr)
+        """
     }
 }

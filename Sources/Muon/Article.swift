@@ -1,9 +1,11 @@
 import Foundation
-public struct Article {
+
+public struct Article: CustomStringConvertible {
+    
     public let title: String
     public let link: String?
     public let guid: String?
-    public let description: String
+    public let articleDescription: String
     public let published: Date
     public let updated: Date?
     public let content: String
@@ -16,7 +18,7 @@ public struct Article {
                 published: Date? = nil, updated: Date? = nil, authors: [Author] = [], enclosures: [Enclosure] = []) {
         self.title = title ?? ""
         self.link = link
-        self.description = description ?? ""
+        self.articleDescription = description ?? ""
         self.guid = guid ?? ""
         self.published = published ?? Date()
         self.updated = updated
@@ -32,5 +34,15 @@ public struct Article {
 
     mutating func addEnclosure(_ enclosure: Enclosure) {
         enclosures.append(enclosure)
+    }
+    
+    public var description: String {
+        return """
+        title: \(title)
+        link: \(link ?? "No link")
+        published: \(published)
+        enclosures: \(enclosures)
+        description: \(articleDescription)
+        """
     }
 }

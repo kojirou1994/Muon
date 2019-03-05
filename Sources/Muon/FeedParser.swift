@@ -1,5 +1,5 @@
 import Foundation
-import Kwift
+import Compatibility
 
 public enum FeedParserError: Error {
     case noFeed
@@ -22,12 +22,12 @@ public enum FeedParserError: Error {
 }
 
 public final class FeedParser: Operation, XMLParserDelegate {
-    private var completion: (ResultWithError<Feed, FeedParserError>) -> Void = { _ in }
+    private var completion: Result<Feed, FeedParserError>.Completion = { _ in }
 
     private var content: Data?
     private var contentString: String?
 
-    public func completion(_ completion: @escaping (ResultWithError<Feed, FeedParserError>) -> Void) {
+    public func completion(_ completion: @escaping Result<Feed, FeedParserError>.Completion) {
         self.completion = completion
     }
 

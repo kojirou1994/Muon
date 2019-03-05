@@ -12,12 +12,12 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/Quick/Nimble", from: "7.0.1"),
         .package(url: "https://github.com/Quick/Quick", from: "1.3.2"),
-        .package(url: "https://github.com/kojirou1994/Kwift", .branch("master"))
+        .package(url: "https://github.com/kojirou1994/Kwift", from: "0.1.1")
     ],
     targets: [
         .target(
             name: "Muon",
-            dependencies: ["Kwift"]),
+            dependencies: ["Compatibility"]),
         .target(
             name: "Muon-Demo",
             dependencies: ["Muon"]),

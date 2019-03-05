@@ -11,8 +11,8 @@ let parser = FeedParser(string: myRSSFeed)
 
 parser.completion({ (result) in
     do {
-        let feed = try result.resolve()
-        print("Parsed: \(feed)")
+        let feed = try result.get()
+        print("Parsed:\n\(feed)")
     } catch {
         print(error)
     }
