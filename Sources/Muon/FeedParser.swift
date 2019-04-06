@@ -1,5 +1,5 @@
 import Foundation
-import Compatibility
+import SwiftEnhancement
 
 public enum FeedParserError: Error {
     case noFeed
